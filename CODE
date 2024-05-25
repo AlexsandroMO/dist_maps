@@ -1,0 +1,25 @@
+import requests
+import pandas as pd
+import json
+
+read_all = pd.read_excel('Transpetro.xlsx','RESUMO_ALL')
+
+big_Maps_Key = "AkSCnokD8nDt2iyCJ9fznhZvcZSNbv7aTwS_RSXqIOd2bHu_bMRjxQUPL3c57BVw"
+new = []
+for i in range(len(read_all['CEP_1'])) :
+    origin = read_all['CEP_1'].loc[i]
+    destination = read_all['CEP_2'].loc[i]
+    route = "http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.0=" + origin + "&wp.1=" + destination + "/&key=" + big_Maps_Key
+    
+    r = requests.get(url = route)
+    result = r.json()
+    if str(r) == '<Response [200]>':
+      route = "http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.0=" + origin + "&wp.1=" + destination + "/&key=" + big_Maps_Key
+      new.append([origin,destination,result['resourceSets'][0]['resources'][0]['travelDistance']])
+    else:
+      new.append([origin,destination,'CEP Não Identificado'])
+
+df = pd.DataFrame(new, columns=['CEP_1', 'CEP_2', 'DIS'])
+df.to_excel('RESULT_ALL.xlsx', index=False)
+
+print('Mal feito, feito!')
